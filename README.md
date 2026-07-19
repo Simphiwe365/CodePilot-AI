@@ -1,4 +1,4 @@
-# ai-code-reviewer
+# CodePilot AI
 
 Project structure placeholder created as requested:
 - `frontend/`
