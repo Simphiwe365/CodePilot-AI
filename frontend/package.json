@@ -1,0 +1,9 @@
+{
+  "name": "ai-code-reviewer-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "echo \"Frontend not implemented yet\" && exit 1"
+  }
+}
+
