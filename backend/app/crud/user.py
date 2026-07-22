@@ -10,7 +10,6 @@ def get_user_by_email(db: Session, email: str):
 
 
 def create_user(db: Session, user: UserCreate):
-
     db_user = User(
         full_name=user.full_name,
         email=user.email,
