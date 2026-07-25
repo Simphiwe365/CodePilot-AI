@@ -2,13 +2,14 @@ from fastapi import FastAPI
 from sqlalchemy import text
 
 from app.api.v1.endpoints.auth import router as auth_router
-from app.db.database import Base, engine
-
-from app.models.code_review import CodeReview
 from app.api.v1.endpoints.reviews import router as reviews_router
 
-# Import models
+from app.db.database import Base, engine
+
+# Import models so SQLAlchemy knows about all tables
 from app.models.user import User
+from app.models.code_review import CodeReview
+
 
 app = FastAPI(
     title="CodePilot AI",
@@ -23,7 +24,6 @@ def startup():
 
 
 app.include_router(auth_router)
-
 app.include_router(reviews_router)
 
 
