@@ -14,3 +14,4 @@ bcrypt==4.0.1
 python-multipart
 email-validator
 httpx
+openai
