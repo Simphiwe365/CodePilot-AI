@@ -1,4 +1,3 @@
-
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -31,7 +30,8 @@ class User(Base):
         default=True
     )
 
-    code_reviews = relationship(
+    code_reviews: Mapped[list["CodeReview"]] = relationship(
         "CodeReview",
-        back_populates="user"
+        back_populates="user",
+        cascade="all, delete-orphan"
     )

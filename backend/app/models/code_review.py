@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, String, Text, DateTime
+from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.database import Base
@@ -20,13 +20,11 @@ class CodeReview(Base):
     )
 
     language: Mapped[str] = mapped_column(
-        String(50),
-        nullable=False
+        String(50)
     )
 
     code: Mapped[str] = mapped_column(
-        Text,
-        nullable=False
+        Text
     )
 
     status: Mapped[str] = mapped_column(
@@ -34,12 +32,26 @@ class CodeReview(Base):
         default="pending"
     )
 
+    review_result: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True
+    )
+
     created_at: Mapped[datetime] = mapped_column(
-        DateTime,
         default=datetime.utcnow
     )
 
-    user = relationship(
+    user: Mapped["User"] = relationship(
         "User",
         back_populates="code_reviews"
     )
+
+    status: Mapped[str] = mapped_column(
+    String(50),
+    default="pending"
+)
+
+review_result: Mapped[str | None] = mapped_column(
+    Text,
+    nullable=True
+)

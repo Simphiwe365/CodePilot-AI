@@ -8,7 +8,8 @@ def create_code_review(
     db: Session,
     review_data: CodeReviewCreate,
     user_id: int
-):
+) -> CodeReview:
+
     review = CodeReview(
         user_id=user_id,
         language=review_data.language,
@@ -27,6 +28,7 @@ def get_user_reviews(
     db: Session,
     user_id: int
 ):
+
     return (
         db.query(CodeReview)
         .filter(CodeReview.user_id == user_id)
