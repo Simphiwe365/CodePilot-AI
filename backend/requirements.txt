@@ -15,3 +15,6 @@ python-multipart
 email-validator
 httpx
 openai
+groq
+pytest
+pytest-asyncio

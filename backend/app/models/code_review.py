@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -38,20 +38,10 @@ class CodeReview(Base):
     )
 
     created_at: Mapped[datetime] = mapped_column(
-        default=datetime.utcnow
+        default=lambda: datetime.now(timezone.utc)
     )
 
     user: Mapped["User"] = relationship(
         "User",
         back_populates="code_reviews"
     )
-
-    status: Mapped[str] = mapped_column(
-    String(50),
-    default="pending"
-)
-
-review_result: Mapped[str | None] = mapped_column(
-    Text,
-    nullable=True
-)

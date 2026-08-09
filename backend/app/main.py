@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from sqlalchemy import text
 
@@ -11,16 +12,18 @@ from app.models.user import User
 from app.models.code_review import CodeReview
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
+
+
 app = FastAPI(
     title="CodePilot AI",
     description="AI-powered code review platform",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan
 )
-
-
-@app.on_event("startup")
-def startup():
-    Base.metadata.create_all(bind=engine)
 
 
 app.include_router(auth_router)
