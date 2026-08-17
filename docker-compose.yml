@@ -1,13 +1,24 @@
 services:
-  frontend:
-    build:
-      context: ./frontend
-    ports:
-      - "3000:3000"
-
   backend:
     build:
       context: ./backend
     ports:
       - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./test.db
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production-12345}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
+    volumes:
+      - ./backend/test.db:/app/test.db
+    restart: unless-stopped
 
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

@@ -57,3 +57,34 @@ def test_code_review_lifecycle_and_ownership(client):
     # 7. Confirm review is gone
     get_gone_res = client.get(f"/reviews/{review_id}", headers=headers_a)
     assert get_gone_res.status_code == 404
+
+
+def test_pagination_and_validation(client):
+    headers = get_auth_headers(client, "carol@codepilot.ai")
+
+    # Validation: code too short
+    short_res = client.post(
+        "/reviews/",
+        headers=headers,
+        json={"language": "python", "code": "x"}
+    )
+    assert short_res.status_code == 422
+
+    # Create 3 reviews
+    for i in range(3):
+        client.post(
+            "/reviews/",
+            headers=headers,
+            json={"language": "python", "code": f"def test_{i}(): pass"}
+        )
+
+    # Test pagination: limit 2
+    res_page1 = client.get("/reviews/?skip=0&limit=2", headers=headers)
+    assert res_page1.status_code == 200
+    assert len(res_page1.json()) == 2
+
+    # Test pagination: skip 2, limit 2
+    res_page2 = client.get("/reviews/?skip=2&limit=2", headers=headers)
+    assert res_page2.status_code == 200
+    assert len(res_page2.json()) == 1
+

@@ -1,15 +1,15 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserCreate(BaseModel):
-    full_name: str
-    email: EmailStr
-    password: str
+    full_name: str = Field(..., min_length=2, max_length=100, description="Full name of the user")
+    email: EmailStr = Field(..., description="Valid email address")
+    password: str = Field(..., min_length=6, max_length=72, description="Password (max 72 chars for bcrypt)")
 
 
 class UserLogin(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(..., min_length=1, max_length=72)
 
 
 class UserResponse(BaseModel):
@@ -18,6 +18,6 @@ class UserResponse(BaseModel):
     email: EmailStr
     is_active: bool
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = ConfigDict(
+        from_attributes=True
+    )

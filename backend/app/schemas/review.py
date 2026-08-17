@@ -4,8 +4,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class CodeReviewCreate(BaseModel):
-    language: str = Field(..., description="Programming language of the code snippet")
-    code: str = Field(..., description="Source code to be reviewed")
+    language: str = Field(..., min_length=1, max_length=50, description="Programming language of the code snippet")
+    code: str = Field(..., min_length=3, max_length=50000, description="Source code to be reviewed (max 50,000 characters)")
 
 
 class BugItem(BaseModel):

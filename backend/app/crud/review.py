@@ -26,13 +26,17 @@ def create_code_review(
 
 def get_user_reviews(
     db: Session,
-    user_id: int
-):
+    user_id: int,
+    skip: int = 0,
+    limit: int = 50
+) -> list[CodeReview]:
 
     return (
         db.query(CodeReview)
         .filter(CodeReview.user_id == user_id)
         .order_by(CodeReview.created_at.desc())
+        .offset(skip)
+        .limit(limit)
         .all()
     )
 

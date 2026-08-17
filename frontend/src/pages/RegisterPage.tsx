@@ -8,72 +8,95 @@ const RegisterPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
+    setLoading(true);
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      setLoading(false);
+      return;
+    }
 
     try {
       await api.post('/auth/register', {
-        full_name: fullName,
-        email,
+        full_name: fullName.trim(),
+        email: email.trim(),
         password
       });
 
       navigate('/login');
     } catch (err) {
-      const defaultMessage = 'Registration failed. Please try again with a different email.';
+      const defaultMessage = 'Registration failed. Please check your inputs or try a different email.';
 
       if (axios.isAxiosError(err)) {
-        const status = err.response?.status;
-        const detail = err.response?.data?.detail ?? err.response?.data ?? err.message;
-        setError(detail ? String(detail) : defaultMessage);
-        console.error('Registration error', { status, detail, response: err.response?.data });
+        const detail = err.response?.data?.detail;
+        if (Array.isArray(detail)) {
+          setError(detail.map(d => d.msg || d).join(', '));
+        } else {
+          setError(detail ? String(detail) : defaultMessage);
+        }
       } else {
         setError(defaultMessage);
-        console.error('Registration error', err);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <main className="page page-auth">
       <div className="auth-card">
-        <h1>Register</h1>
-        <form onSubmit={handleSubmit}>
+        <div className="auth-header">
+          <h1>Create an Account</h1>
+          <p className="auth-subtitle">Join CodePilot AI and supercharge your code reviews</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="auth-form">
           <label>
-            Full name
+            <span>Full Name</span>
             <input
               type="text"
+              placeholder="e.g. Alex Morgan"
               value={fullName}
               onChange={(event) => setFullName(event.target.value)}
               required
             />
           </label>
           <label>
-            Email
+            <span>Email Address</span>
             <input
               type="email"
+              placeholder="you@example.com"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               required
             />
           </label>
           <label>
-            Password
+            <span>Password</span>
             <input
               type="password"
+              placeholder="At least 6 characters"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               required
             />
           </label>
-          {error ? <div className="error-message">{error}</div> : null}
-          <button type="submit" className="button primary">Register</button>
+
+          {error && <div className="error-message">{error}</div>}
+
+          <button type="submit" className="button primary full-width" disabled={loading}>
+            {loading ? 'Creating account...' : 'Create Account'}
+          </button>
         </form>
-        <p>
-          Already have an account? <Link to="/login">Login</Link>
+
+        <p className="auth-footer">
+          Already have an account? <Link to="/login">Sign in</Link>
         </p>
       </div>
     </main>

@@ -37,6 +37,11 @@ class AIReviewer:
         Submits code to LLM (Groq primary, OpenAI fallback, or Mock fallback)
         and returns a JSON-formatted code review string.
         """
+        # Guard against excessively large inputs
+        max_len = getattr(settings, "MAX_CODE_LENGTH", 50000)
+        sanitized_code = code[:max_len] if len(code) > max_len else code
+        sanitized_language = language[:50]
+
         system_prompt = (
             "You are CodePilot AI, a senior staff software engineer and security specialist.\n"
             "Analyze the submitted code and return ONLY valid JSON matching this exact structure:\n"
@@ -55,7 +60,7 @@ class AIReviewer:
             "Do not include markdown code block formatting in your JSON output if possible."
         )
 
-        user_prompt = f"Review this {language} code:\n\n{code}"
+        user_prompt = f"Review this {sanitized_language} code:\n\n{sanitized_code}"
 
         # 1. Try Groq
         if self.groq_client:
@@ -67,10 +72,11 @@ class AIReviewer:
                         {"role": "user", "content": user_prompt}
                     ],
                     temperature=0.2,
+                    timeout=25.0,
                     response_format={"type": "json_object"}
                 )
                 raw_json = response.choices[0].message.content
-                return self._parse_and_validate_json(raw_json, code, language)
+                return self._parse_and_validate_json(raw_json, sanitized_code, sanitized_language)
             except Exception as e:
                 logger.warning(f"Groq API call failed: {e}. Trying fallbacks.")
 
@@ -83,15 +89,16 @@ class AIReviewer:
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt}
                     ],
-                    temperature=0.2
+                    temperature=0.2,
+                    timeout=25.0
                 )
                 raw_json = response.choices[0].message.content
-                return self._parse_and_validate_json(raw_json, code, language)
+                return self._parse_and_validate_json(raw_json, sanitized_code, sanitized_language)
             except Exception as e:
                 logger.warning(f"OpenAI API call failed: {e}. Falling back to mock review.")
 
         # 3. Mock fallback when no key is set or APIs fail
-        return self._generate_mock_review(code, language)
+        return self._generate_mock_review(sanitized_code, sanitized_language)
 
     def _parse_and_validate_json(self, raw_text: str, code: str, language: str) -> str:
         """Parses raw text into sanitized JSON string, guaranteeing expected fields."""

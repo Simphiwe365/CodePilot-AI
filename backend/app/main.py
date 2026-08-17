@@ -6,6 +6,7 @@ from sqlalchemy import text
 from app.api.v1.endpoints.auth import router as auth_router
 from app.api.v1.endpoints.reviews import router as reviews_router
 
+from app.core.config import settings
 from app.db.database import Base, engine
 
 # Import models so SQLAlchemy knows about all tables
@@ -28,7 +29,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

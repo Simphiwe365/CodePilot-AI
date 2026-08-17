@@ -12,6 +12,9 @@ venv/
 # Flask / Django / general
 instance/
 *.log
+*.db
+*.sqlite3
+*.sqlite
 
 # Node
 node_modules/
